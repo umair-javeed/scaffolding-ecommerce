@@ -1,0 +1,15 @@
+{
+  "dev": {
+    "awscloudformation": {
+      "AuthRoleName": "amplify-scaffoldingecommerce-dev-96e33-authRole",
+      "UnauthRoleArn": "arn:aws:iam::495599752398:role/amplify-scaffoldingecommerce-dev-96e33-unauthRole",
+      "AuthRoleArn": "arn:aws:iam::495599752398:role/amplify-scaffoldingecommerce-dev-96e33-authRole",
+      "Region": "us-east-1",
+      "DeploymentBucketName": "amplify-scaffoldingecommerce-dev-96e33-deployment",
+      "UnauthRoleName": "amplify-scaffoldingecommerce-dev-96e33-unauthRole",
+      "StackName": "amplify-scaffoldingecommerce-dev-96e33",
+      "StackId": "arn:aws:cloudformation:us-east-1:495599752398:stack/amplify-scaffoldingecommerce-dev-96e33/e2b39a30-b367-11f0-b40b-0e545b98ebd7",
+      "AmplifyAppId": "d11m5ke4iin87"
+    }
+  }
+}

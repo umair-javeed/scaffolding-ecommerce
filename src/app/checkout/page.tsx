@@ -1,268 +1,196 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { createOrder } from '@/lib/api';
 
 export default function CheckoutPage() {
-  const [formData, setFormData] = useState({
-    // Shipping Information
-    fullName: '',
-    email: '',
-    phone: '',
-    address: '',
-    city: '',
-    state: '',
-    zipCode: '',
-    country: '',
-    
-    // Payment Information
-    cardNumber: '',
-    cardName: '',
-    expiryDate: '',
-    cvv: ''
-  });
+  const router = useRouter();
+  const [loading, setLoading] = useState(false);
+  const [orderPlaced, setOrderPlaced] = useState(false);
+  const [orderId, setOrderId] = useState('');
+  const [error, setError] = useState('');
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value
-    });
-  };
-
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    // Handle checkout logic here
-    console.log('Checkout attempt:', formData);
-    alert('Order placed successfully!');
+    setLoading(true);
+    setError('');
+
+    try {
+      const formData = new FormData(e.currentTarget);
+      
+      // Get cart items from localStorage (you can enhance this)
+      const cartItems = [
+        { 
+          id: 1, 
+          name: 'MS Scaffolding Pipes', 
+          weight: 100, 
+          unit: 'kg' as const, 
+          pricePerUnit: 2.50 
+        }
+      ];
+      
+      const order = {
+        customerEmail: formData.get('email') as string,
+        items: cartItems,
+        totalAmount: cartItems.reduce((sum, item) => sum + (item.weight * item.pricePerUnit), 0),
+        shippingAddress: {
+          street: formData.get('address') as string,
+          city: formData.get('city') as string,
+          state: formData.get('state') as string,
+          zip: formData.get('zip') as string,
+          country: formData.get('country') as string
+        }
+      };
+
+      const response = await createOrder(order);
+      
+      if (response.success) {
+        setOrderId(response.orderId);
+        setOrderPlaced(true);
+      } else {
+        setError('Failed to place order. Please try again.');
+      }
+    } catch (err) {
+      console.error('Order error:', err);
+      setError('Error placing order. Please try again.');
+    } finally {
+      setLoading(false);
+    }
   };
+
+  if (orderPlaced) {
+    return (
+      <div className="min-h-[60vh] bg-gray-50 py-12">
+        <div className="container-custom max-w-2xl text-center">
+          <div className="bg-white rounded-lg shadow-md p-8">
+            <div className="text-6xl mb-4">✅</div>
+            <h1 className="text-3xl font-bold text-green-600 mb-4">
+              Order Placed Successfully!
+            </h1>
+            <p className="text-xl mb-2">Order ID: <strong>{orderId}</strong></p>
+            <p className="text-gray-600 mb-6">
+              You will receive a confirmation email shortly.
+            </p>
+            <div className="space-y-3">
+              <button
+                onClick={() => router.push('/')}
+                className="block w-full bg-primary-600 text-white px-6 py-3 rounded-lg hover:bg-primary-700 transition font-semibold"
+              >
+                Continue Shopping
+              </button>
+              <button
+                onClick={() => router.push('/cart')}
+                className="block w-full bg-gray-200 text-gray-800 px-6 py-3 rounded-lg hover:bg-gray-300 transition font-semibold"
+              >
+                View Cart
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-[80vh] bg-gray-50 py-12">
-      <div className="container-custom max-w-4xl">
+      <div className="container-custom">
         <h1 className="text-3xl font-bold mb-8">Checkout</h1>
         
-        <form onSubmit={handleSubmit} className="space-y-8">
-          {/* Shipping Information */}
-          <div className="bg-white rounded-lg shadow-md p-6">
-            <h2 className="text-2xl font-semibold mb-6">Shipping Information</h2>
+        {error && (
+          <div className="max-w-2xl mb-6 bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded">
+            {error}
+          </div>
+        )}
+
+        <form onSubmit={handleSubmit} className="max-w-2xl">
+          <div className="bg-white rounded-lg shadow-md p-6 mb-6">
+            <h2 className="text-xl font-semibold mb-4">Contact Information</h2>
             
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="md:col-span-2">
-                <label htmlFor="fullName" className="block text-sm font-medium text-gray-700 mb-2">
-                  Full Name *
-                </label>
-                <input
-                  type="text"
-                  id="fullName"
-                  name="fullName"
-                  required
-                  value={formData.fullName}
-                  onChange={handleChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500"
-                />
-              </div>
-              
+            <div className="mb-4">
+              <label className="block text-sm font-semibold mb-2">Email Address *</label>
+              <input
+                name="email"
+                type="email"
+                required
+                placeholder="your.email@example.com"
+                className="w-full px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-primary-500"
+              />
+            </div>
+          </div>
+
+          <div className="bg-white rounded-lg shadow-md p-6 mb-6">
+            <h2 className="text-xl font-semibold mb-4">Shipping Address</h2>
+            
+            <div className="mb-4">
+              <label className="block text-sm font-semibold mb-2">Street Address *</label>
+              <input
+                name="address"
+                type="text"
+                required
+                placeholder="123 Main Street"
+                className="w-full px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-primary-500"
+              />
+            </div>
+
+            <div className="grid grid-cols-2 gap-4 mb-4">
               <div>
-                <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
-                  Email *
-                </label>
+                <label className="block text-sm font-semibold mb-2">City *</label>
                 <input
-                  type="email"
-                  id="email"
-                  name="email"
-                  required
-                  value={formData.email}
-                  onChange={handleChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500"
-                />
-              </div>
-              
-              <div>
-                <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-2">
-                  Phone *
-                </label>
-                <input
-                  type="tel"
-                  id="phone"
-                  name="phone"
-                  required
-                  value={formData.phone}
-                  onChange={handleChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500"
-                />
-              </div>
-              
-              <div className="md:col-span-2">
-                <label htmlFor="address" className="block text-sm font-medium text-gray-700 mb-2">
-                  Address *
-                </label>
-                <input
-                  type="text"
-                  id="address"
-                  name="address"
-                  required
-                  value={formData.address}
-                  onChange={handleChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500"
-                />
-              </div>
-              
-              <div>
-                <label htmlFor="city" className="block text-sm font-medium text-gray-700 mb-2">
-                  City *
-                </label>
-                <input
-                  type="text"
-                  id="city"
                   name="city"
+                  type="text"
                   required
-                  value={formData.city}
-                  onChange={handleChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500"
+                  placeholder="New York"
+                  className="w-full px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-primary-500"
                 />
               </div>
-              
               <div>
-                <label htmlFor="state" className="block text-sm font-medium text-gray-700 mb-2">
-                  State *
-                </label>
+                <label className="block text-sm font-semibold mb-2">State *</label>
                 <input
-                  type="text"
-                  id="state"
                   name="state"
+                  type="text"
                   required
-                  value={formData.state}
-                  onChange={handleChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500"
+                  placeholder="NY"
+                  className="w-full px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-primary-500"
                 />
               </div>
-              
+            </div>
+
+            <div className="grid grid-cols-2 gap-4 mb-4">
               <div>
-                <label htmlFor="zipCode" className="block text-sm font-medium text-gray-700 mb-2">
-                  ZIP Code *
-                </label>
+                <label className="block text-sm font-semibold mb-2">ZIP Code *</label>
                 <input
+                  name="zip"
                   type="text"
-                  id="zipCode"
-                  name="zipCode"
                   required
-                  value={formData.zipCode}
-                  onChange={handleChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500"
+                  placeholder="10001"
+                  className="w-full px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-primary-500"
                 />
               </div>
-              
               <div>
-                <label htmlFor="country" className="block text-sm font-medium text-gray-700 mb-2">
-                  Country *
-                </label>
+                <label className="block text-sm font-semibold mb-2">Country *</label>
                 <input
-                  type="text"
-                  id="country"
                   name="country"
-                  required
-                  value={formData.country}
-                  onChange={handleChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500"
-                />
-              </div>
-            </div>
-          </div>
-
-          {/* Payment Information */}
-          <div className="bg-white rounded-lg shadow-md p-6">
-            <h2 className="text-2xl font-semibold mb-6">Payment Information</h2>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="md:col-span-2">
-                <label htmlFor="cardNumber" className="block text-sm font-medium text-gray-700 mb-2">
-                  Card Number *
-                </label>
-                <input
                   type="text"
-                  id="cardNumber"
-                  name="cardNumber"
                   required
-                  placeholder="1234 5678 9012 3456"
-                  value={formData.cardNumber}
-                  onChange={handleChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500"
+                  placeholder="USA"
+                  className="w-full px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-primary-500"
                 />
-              </div>
-              
-              <div className="md:col-span-2">
-                <label htmlFor="cardName" className="block text-sm font-medium text-gray-700 mb-2">
-                  Name on Card *
-                </label>
-                <input
-                  type="text"
-                  id="cardName"
-                  name="cardName"
-                  required
-                  value={formData.cardName}
-                  onChange={handleChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500"
-                />
-              </div>
-              
-              <div>
-                <label htmlFor="expiryDate" className="block text-sm font-medium text-gray-700 mb-2">
-                  Expiry Date *
-                </label>
-                <input
-                  type="text"
-                  id="expiryDate"
-                  name="expiryDate"
-                  required
-                  placeholder="MM/YY"
-                  value={formData.expiryDate}
-                  onChange={handleChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500"
-                />
-              </div>
-              
-              <div>
-                <label htmlFor="cvv" className="block text-sm font-medium text-gray-700 mb-2">
-                  CVV *
-                </label>
-                <input
-                  type="text"
-                  id="cvv"
-                  name="cvv"
-                  required
-                  placeholder="123"
-                  value={formData.cvv}
-                  onChange={handleChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500"
-                />
-              </div>
-            </div>
-          </div>
-
-          {/* Order Summary */}
-          <div className="bg-white rounded-lg shadow-md p-6">
-            <h2 className="text-2xl font-semibold mb-4">Order Summary</h2>
-            <div className="space-y-2 mb-4">
-              <div className="flex justify-between">
-                <span>Subtotal</span>
-                <span>$499.98</span>
-              </div>
-              <div className="flex justify-between">
-                <span>Shipping</span>
-                <span className="text-green-600">FREE</span>
-              </div>
-              <div className="flex justify-between text-xl font-bold pt-2 border-t">
-                <span>Total</span>
-                <span className="text-primary-600">$499.98</span>
               </div>
             </div>
           </div>
 
           <button
             type="submit"
-            className="w-full bg-primary-600 text-white py-3 rounded-lg hover:bg-primary-700 transition font-semibold text-lg"
+            disabled={loading}
+            className="w-full bg-primary-600 text-white px-8 py-4 rounded-lg hover:bg-primary-700 transition font-semibold text-lg disabled:bg-gray-400 disabled:cursor-not-allowed"
           >
-            Place Order
+            {loading ? 'Processing Order...' : 'Place Order'}
           </button>
+
+          <p className="text-sm text-gray-600 mt-4 text-center">
+            By placing this order, you agree to our terms and conditions.
+          </p>
         </form>
       </div>
     </div>
