@@ -1,0 +1,80 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 222.2 84% 4.9%;
+  }
+  
+  body {
+    @apply bg-white text-gray-900;
+  }
+}
+
+@layer utilities {
+  .container-custom {
+    @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+  }
+}
+
+/* 3D Button Styles */
+.btn-3d {
+  position: relative;
+  background: linear-gradient(145deg, #fb923c, #ea580c);
+  box-shadow: 
+    0 8px 16px rgba(234, 88, 12, 0.3),
+    0 4px 8px rgba(0, 0, 0, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  border: none;
+  transform: translateY(0);
+  transition: all 0.2s ease;
+}
+
+.btn-3d:hover {
+  background: linear-gradient(145deg, #f97316, #c2410c);
+  box-shadow: 
+    0 12px 24px rgba(234, 88, 12, 0.4),
+    0 6px 12px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.4);
+  transform: translateY(-2px);
+}
+
+.btn-3d:active {
+  transform: translateY(2px);
+  box-shadow: 
+    0 4px 8px rgba(234, 88, 12, 0.2),
+    0 2px 4px rgba(0, 0, 0, 0.2),
+    inset 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+/* 3D White Button */
+.btn-3d-white {
+  position: relative;
+  background: linear-gradient(145deg, #ffffff, #f5f5f5);
+  color: #ea580c !important;
+  box-shadow: 
+    0 8px 16px rgba(0, 0, 0, 0.15),
+    0 4px 8px rgba(0, 0, 0, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.8);
+  border: 2px solid #ea580c;
+  transform: translateY(0);
+  transition: all 0.2s ease;
+}
+
+.btn-3d-white:hover {
+  background: linear-gradient(145deg, #fef3c7, #fde68a);
+  box-shadow: 
+    0 12px 24px rgba(0, 0, 0, 0.2),
+    0 6px 12px rgba(0, 0, 0, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  transform: translateY(-2px);
+}
+
+.btn-3d-white:active {
+  transform: translateY(2px);
+  box-shadow: 
+    0 4px 8px rgba(0, 0, 0, 0.1),
+    inset 0 2px 4px rgba(0, 0, 0, 0.1);
+}
