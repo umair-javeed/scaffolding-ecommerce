@@ -1,7 +1,7 @@
 'use client';
 
+import { useState } from 'react';
 import Image from 'next/image';
-import Link from 'next/link';
 import { Product } from '@/lib/products';
 
 interface ProductCardProps {
@@ -9,6 +9,35 @@ interface ProductCardProps {
 }
 
 export default function ProductCard({ product }: ProductCardProps) {
+  const [weight, setWeight] = useState(100);
+  const [unit, setUnit] = useState<'kg' | 'lb'>('kg');
+  const [added, setAdded] = useState(false);
+
+  const handleAddToCart = () => {
+    // Get existing cart from localStorage
+    const existingCart = localStorage.getItem('cart');
+    const cart = existingCart ? JSON.parse(existingCart) : [];
+    
+    // Add new item
+    const cartItem = {
+      id: product.id,
+      name: product.name,
+      weight,
+      unit,
+      pricePerUnit: unit === 'kg' ? product.pricePerKg : product.pricePerLb,
+      image: product.image
+    };
+    
+    cart.push(cartItem);
+    
+    // Save to localStorage
+    localStorage.setItem('cart', JSON.stringify(cart));
+    
+    // Show feedback
+    setAdded(true);
+    setTimeout(() => setAdded(false), 2000);
+  };
+
   return (
     <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition">
       <div className="relative h-48 bg-gray-200">
@@ -39,13 +68,38 @@ export default function ProductCard({ product }: ProductCardProps) {
         <p className="text-green-600 text-sm mb-3">
           In Stock ({product.stock.toLocaleString()} kg available)
         </p>
-        
-        <Link
-          href={`/product/${product.id}`}
-          className="btn-3d block w-full text-white text-center py-2 rounded-lg font-semibold text-sm"
+
+        {/* Weight Input */}
+        <div className="mb-3 flex gap-2">
+          <input
+            type="number"
+            min="1"
+            value={weight}
+            onChange={(e) => setWeight(parseInt(e.target.value) || 1)}
+            className="flex-1 px-3 py-2 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
+            placeholder="Weight"
+          />
+          <select
+            value={unit}
+            onChange={(e) => setUnit(e.target.value as 'kg' | 'lb')}
+            className="px-3 py-2 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
+          >
+            <option value="kg">KG</option>
+            <option value="lb">LB</option>
+          </select>
+        </div>
+
+        {/* Add to Cart Button */}
+        <button
+          onClick={handleAddToCart}
+          className={`w-full py-2 rounded-lg font-semibold text-sm transition ${
+            added 
+              ? 'bg-green-600 text-white' 
+              : 'bg-primary-600 text-white hover:bg-primary-700'
+          }`}
         >
-          View Details
-        </Link>
+          {added ? '✓ Added to Cart!' : 'Add to Cart'}
+        </button>
       </div>
     </div>
   );
