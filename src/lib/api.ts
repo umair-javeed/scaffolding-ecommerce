@@ -1,4 +1,4 @@
-const API_URL = 'https://844b95xljc.execute-api.us-east-1.amazonaws.com'; // Replace with your API URL
+const API_URL = 'https://844b95xljc.execute-api.us-east-1.amazonaws.com/prod'; // Replace with your API URL
 
 export interface OrderItem {
   id: number;
