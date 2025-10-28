@@ -1,105 +1,202 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Image from 'next/image';
-import { Product } from '@/lib/products';
+import Link from 'next/link';
 
-interface ProductCardProps {
-  product: Product;
+interface CartItem {
+  id: number;
+  name: string;
+  weight: number;
+  unit: 'kg' | 'lb';
+  pricePerUnit: number;
+  image: string;
 }
 
-export default function ProductCard({ product }: ProductCardProps) {
-  const [weight, setWeight] = useState(100);
-  const [unit, setUnit] = useState<'kg' | 'lb'>('kg');
-  const [added, setAdded] = useState(false);
+export default function CartPage() {
+  const [cartItems, setCartItems] = useState<CartItem[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const handleAddToCart = () => {
-    // Get existing cart from localStorage
-    const existingCart = localStorage.getItem('cart');
-    const cart = existingCart ? JSON.parse(existingCart) : [];
-    
-    // Add new item
-    const cartItem = {
-      id: product.id,
-      name: product.name,
-      weight,
-      unit,
-      pricePerUnit: unit === 'kg' ? product.pricePerKg : product.pricePerLb,
-      image: product.image
-    };
-    
-    cart.push(cartItem);
-    
-    // Save to localStorage
-    localStorage.setItem('cart', JSON.stringify(cart));
-    
-    // Show feedback
-    setAdded(true);
-    setTimeout(() => setAdded(false), 2000);
+  useEffect(() => {
+    // Load cart from localStorage
+    const savedCart = localStorage.getItem('cart');
+    if (savedCart) {
+      setCartItems(JSON.parse(savedCart));
+    }
+    setLoading(false);
+  }, []);
+
+  const removeItem = (index: number) => {
+    const newCart = cartItems.filter((_, i) => i !== index);
+    setCartItems(newCart);
+    localStorage.setItem('cart', JSON.stringify(newCart));
   };
 
-  return (
-    <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition">
-      <div className="relative h-48 bg-gray-200">
-        <Image
-          src={product.image}
-          alt={product.name}
-          fill
-          className="object-cover"
-          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-        />
+  const updateWeight = (index: number, newWeight: number) => {
+    const newCart = [...cartItems];
+    newCart[index].weight = newWeight;
+    setCartItems(newCart);
+    localStorage.setItem('cart', JSON.stringify(newCart));
+  };
+
+  const updateUnit = (index: number, newUnit: 'kg' | 'lb') => {
+    const newCart = [...cartItems];
+    newCart[index].unit = newUnit;
+    setCartItems(newCart);
+    localStorage.setItem('cart', JSON.stringify(newCart));
+  };
+
+  const clearCart = () => {
+    setCartItems([]);
+    localStorage.removeItem('cart');
+  };
+
+  const calculateTotal = () => {
+    return cartItems.reduce((sum, item) => {
+      return sum + (item.weight * item.pricePerUnit);
+    }, 0);
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-[60vh] flex items-center justify-center">
+        <div className="text-xl">Loading cart...</div>
       </div>
-      
-      <div className="p-4">
-        <h3 className="text-lg font-semibold mb-2 line-clamp-2">{product.name}</h3>
-        <p className="text-gray-600 text-sm mb-3 line-clamp-2">{product.description}</p>
-        
-        <div className="mb-3 space-y-1">
-          <div className="flex justify-between items-center">
-            <span className="text-sm text-gray-600">Price per KG:</span>
-            <span className="text-primary-600 font-bold">${product.pricePerKg.toFixed(2)}/kg</span>
-          </div>
-          <div className="flex justify-between items-center">
-            <span className="text-sm text-gray-600">Price per LB:</span>
-            <span className="text-primary-600 font-bold">${product.pricePerLb.toFixed(2)}/lb</span>
-          </div>
-        </div>
-        
-        <p className="text-green-600 text-sm mb-3">
-          In Stock ({product.stock.toLocaleString()} kg available)
-        </p>
+    );
+  }
 
-        {/* Weight Input */}
-        <div className="mb-3 flex gap-2">
-          <input
-            type="number"
-            min="1"
-            value={weight}
-            onChange={(e) => setWeight(parseInt(e.target.value) || 1)}
-            className="flex-1 px-3 py-2 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
-            placeholder="Weight"
-          />
-          <select
-            value={unit}
-            onChange={(e) => setUnit(e.target.value as 'kg' | 'lb')}
-            className="px-3 py-2 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
+  if (cartItems.length === 0) {
+    return (
+      <div className="min-h-[60vh] flex flex-col items-center justify-center">
+        <div className="text-center">
+          <div className="text-6xl mb-4">🛒</div>
+          <h1 className="text-3xl font-bold mb-4">Your Cart is Empty</h1>
+          <p className="text-gray-600 mb-6">Add some scaffolding materials to get started!</p>
+          <Link
+            href="/"
+            className="inline-block bg-primary-600 text-white px-8 py-3 rounded-lg hover:bg-primary-700 transition font-semibold"
           >
-            <option value="kg">KG</option>
-            <option value="lb">LB</option>
-          </select>
+            Browse Products
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-[80vh] bg-gray-50 py-12">
+      <div className="container-custom">
+        <div className="flex justify-between items-center mb-8">
+          <h1 className="text-3xl font-bold">Shopping Cart</h1>
+          <button
+            onClick={clearCart}
+            className="text-red-600 hover:text-red-700 font-semibold"
+          >
+            Clear Cart
+          </button>
         </div>
 
-        {/* Add to Cart Button */}
-        <button
-          onClick={handleAddToCart}
-          className={`w-full py-2 rounded-lg font-semibold text-sm transition ${
-            added 
-              ? 'bg-green-600 text-white' 
-              : 'btn-3d text-white hover:opacity-90'
-          }`}
-        >
-          {added ? '✓ Added to Cart!' : 'Add to Cart'}
-        </button>
+        <div className="grid lg:grid-cols-3 gap-8">
+          {/* Cart Items */}
+          <div className="lg:col-span-2 space-y-4">
+            {cartItems.map((item, index) => (
+              <div key={index} className="bg-white rounded-lg shadow-md p-6">
+                <div className="flex gap-4">
+                  <div className="relative w-24 h-24 flex-shrink-0 bg-gray-200 rounded">
+                    <Image
+                      src={item.image}
+                      alt={item.name}
+                      fill
+                      className="object-cover rounded"
+                      sizes="96px"
+                    />
+                  </div>
+
+                  <div className="flex-1">
+                    <h3 className="font-semibold text-lg mb-2">{item.name}</h3>
+                    
+                    <div className="flex flex-wrap gap-4 items-center mb-3">
+                      <div className="flex gap-2 items-center">
+                        <label className="text-sm text-gray-600">Weight:</label>
+                        <input
+                          type="number"
+                          min="1"
+                          value={item.weight}
+                          onChange={(e) => updateWeight(index, parseInt(e.target.value) || 1)}
+                          className="w-20 px-2 py-1 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
+                        />
+                      </div>
+
+                      <div className="flex gap-2 items-center">
+                        <label className="text-sm text-gray-600">Unit:</label>
+                        <select
+                          value={item.unit}
+                          onChange={(e) => updateUnit(index, e.target.value as 'kg' | 'lb')}
+                          className="px-2 py-1 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
+                        >
+                          <option value="kg">KG</option>
+                          <option value="lb">LB</option>
+                        </select>
+                      </div>
+
+                      <div className="text-sm text-gray-600">
+                        Price: ${item.pricePerUnit.toFixed(2)}/{item.unit}
+                      </div>
+                    </div>
+
+                    <div className="flex justify-between items-center">
+                      <div className="text-xl font-bold text-primary-600">
+                        ${(item.weight * item.pricePerUnit).toFixed(2)}
+                      </div>
+                      <button
+                        onClick={() => removeItem(index)}
+                        className="text-red-600 hover:text-red-700 text-sm font-semibold"
+                      >
+                        Remove
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Order Summary */}
+          <div className="lg:col-span-1">
+            <div className="bg-white rounded-lg shadow-md p-6 sticky top-24">
+              <h2 className="text-xl font-bold mb-4">Order Summary</h2>
+              
+              <div className="space-y-3 mb-6">
+                <div className="flex justify-between text-gray-600">
+                  <span>Items:</span>
+                  <span>{cartItems.length}</span>
+                </div>
+                <div className="flex justify-between text-gray-600">
+                  <span>Subtotal:</span>
+                  <span>${calculateTotal().toFixed(2)}</span>
+                </div>
+                <div className="border-t pt-3 flex justify-between text-xl font-bold">
+                  <span>Total:</span>
+                  <span className="text-primary-600">${calculateTotal().toFixed(2)}</span>
+                </div>
+              </div>
+
+              <Link
+                href="/checkout"
+                className="block w-full bg-primary-600 text-white text-center py-3 rounded-lg hover:bg-primary-700 transition font-semibold mb-4"
+              >
+                Proceed to Checkout
+              </Link>
+
+              <Link
+                href="/"
+                className="block w-full bg-gray-200 text-gray-800 text-center py-3 rounded-lg hover:bg-gray-300 transition font-semibold"
+              >
+                Continue Shopping
+              </Link>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );
