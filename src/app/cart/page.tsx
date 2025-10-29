@@ -18,7 +18,6 @@ export default function CartPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Load cart from localStorage
     const savedCart = localStorage.getItem('cart');
     if (savedCart) {
       setCartItems(JSON.parse(savedCart));
@@ -32,10 +31,9 @@ export default function CartPage() {
     localStorage.setItem('cart', JSON.stringify(newCart));
   };
 
-  const updateWeight = (index: number, value: string) => {
-    // Allow empty string while typing
+  const updateWeight = (index: number, value: string | number) => {
     const newCart = [...cartItems];
-    const numValue = value === '' ? 1 : parseInt(value);
+    const numValue = typeof value === 'string' ? parseInt(value) || 0 : value;
     newCart[index].weight = numValue;
     setCartItems(newCart);
     localStorage.setItem('cart', JSON.stringify(newCart));
@@ -99,7 +97,6 @@ export default function CartPage() {
         </div>
 
         <div className="grid lg:grid-cols-3 gap-8">
-          {/* Cart Items */}
           <div className="lg:col-span-2 space-y-4">
             {cartItems.map((item, index) => (
               <div key={index} className="bg-white rounded-lg shadow-md p-6">
@@ -121,18 +118,25 @@ export default function CartPage() {
                       <div className="flex gap-2 items-center">
                         <label className="text-sm text-gray-600">Weight:</label>
                         <input
-                          type="number"
-                          min="1"
-                          step="1"
-                          value={item.weight}
-                          onChange={(e) => updateWeight(index, e.target.value)}
-                          onBlur={(e) => {
-                            // Ensure minimum value of 1 when user leaves the field
-                            if (!e.target.value || parseInt(e.target.value) < 1) {
-                              updateWeight(index, '1');
+                          type="text"
+                          inputMode="numeric"
+                          value={item.weight === 0 ? '' : item.weight.toString()}
+                          onChange={(e) => {
+                            const value = e.target.value;
+                            if (value === '') {
+                              updateWeight(index, 0);
+                            } else if (/^\d+$/.test(value)) {
+                              updateWeight(index, parseInt(value));
                             }
                           }}
-                          className="w-24 px-3 py-2 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
+                          onFocus={(e) => e.target.select()}
+                          onBlur={(e) => {
+                            if (e.target.value === '' || parseInt(e.target.value) < 1) {
+                              updateWeight(index, 1);
+                            }
+                          }}
+                          placeholder="Enter weight"
+                          className="w-28 px-3 py-2 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
                         />
                       </div>
 
@@ -170,7 +174,6 @@ export default function CartPage() {
             ))}
           </div>
 
-          {/* Order Summary */}
           <div className="lg:col-span-1">
             <div className="bg-white rounded-lg shadow-md p-6 sticky top-24">
               <h2 className="text-xl font-bold mb-4">Order Summary</h2>
