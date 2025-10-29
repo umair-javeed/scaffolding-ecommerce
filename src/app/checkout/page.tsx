@@ -1,8 +1,17 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { createOrder } from '@/lib/api';
+
+interface CartItem {
+  id: number;
+  name: string;
+  weight: number;
+  unit: 'kg' | 'lb';
+  pricePerUnit: number;
+  image: string;
+}
 
 export default function CheckoutPage() {
   const router = useRouter();
@@ -10,30 +19,48 @@ export default function CheckoutPage() {
   const [orderPlaced, setOrderPlaced] = useState(false);
   const [orderId, setOrderId] = useState('');
   const [error, setError] = useState('');
+  const [cartItems, setCartItems] = useState<CartItem[]>([]);
+
+  useEffect(() => {
+    // Load cart from localStorage
+    const savedCart = localStorage.getItem('cart');
+    if (savedCart) {
+      setCartItems(JSON.parse(savedCart));
+    }
+  }, []);
+
+  const calculateTotal = () => {
+    return cartItems.reduce((sum, item) => {
+      return sum + (item.weight * item.pricePerUnit);
+    }, 0);
+  };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    
+    if (cartItems.length === 0) {
+      setError('Your cart is empty! Please add items before checkout.');
+      return;
+    }
+
     setLoading(true);
     setError('');
 
     try {
       const formData = new FormData(e.currentTarget);
       
-      // Get cart items from localStorage (you can enhance this)
-      const cartItems = [
-        { 
-          id: 1, 
-          name: 'MS Scaffolding Pipes', 
-          weight: 100, 
-          unit: 'kg' as const, 
-          pricePerUnit: 2.50 
-        }
-      ];
+      const totalAmount = calculateTotal();
       
       const order = {
         customerEmail: formData.get('email') as string,
-        items: cartItems,
-        totalAmount: cartItems.reduce((sum, item) => sum + (item.weight * item.pricePerUnit), 0),
+        items: cartItems.map(item => ({
+          id: item.id,
+          name: item.name,
+          weight: item.weight,
+          unit: item.unit,
+          pricePerUnit: item.pricePerUnit
+        })),
+        totalAmount: parseFloat(totalAmount.toFixed(2)),
         shippingAddress: {
           street: formData.get('address') as string,
           city: formData.get('city') as string,
@@ -43,11 +70,15 @@ export default function CheckoutPage() {
         }
       };
 
+      console.log('Submitting order:', order);
+
       const response = await createOrder(order);
       
       if (response.success) {
         setOrderId(response.orderId);
         setOrderPlaced(true);
+        // Clear cart after successful order
+        localStorage.removeItem('cart');
       } else {
         setError('Failed to place order. Please try again.');
       }
@@ -100,6 +131,36 @@ export default function CheckoutPage() {
         {error && (
           <div className="max-w-2xl mb-6 bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded">
             {error}
+          </div>
+        )}
+
+        {cartItems.length === 0 && (
+          <div className="max-w-2xl mb-6 bg-yellow-50 border border-yellow-200 text-yellow-800 px-4 py-3 rounded">
+            Your cart is empty! Please add items before checkout.
+          </div>
+        )}
+
+        {/* Order Summary - Show before form */}
+        {cartItems.length > 0 && (
+          <div className="max-w-2xl mb-6 bg-white rounded-lg shadow-md p-6">
+            <h2 className="text-xl font-semibold mb-4">Order Summary</h2>
+            {cartItems.map((item, index) => (
+              <div key={index} className="flex justify-between items-center mb-2 pb-2 border-b">
+                <div>
+                  <p className="font-semibold">{item.name}</p>
+                  <p className="text-sm text-gray-600">
+                    {item.weight} {item.unit} × ${item.pricePerUnit.toFixed(2)}/{item.unit}
+                  </p>
+                </div>
+                <p className="font-bold text-primary-600">
+                  ${(item.weight * item.pricePerUnit).toFixed(2)}
+                </p>
+              </div>
+            ))}
+            <div className="flex justify-between items-center pt-4 text-xl font-bold">
+              <span>Total:</span>
+              <span className="text-primary-600">${calculateTotal().toFixed(2)}</span>
+            </div>
           </div>
         )}
 
@@ -182,10 +243,10 @@ export default function CheckoutPage() {
 
           <button
             type="submit"
-            disabled={loading}
+            disabled={loading || cartItems.length === 0}
             className="w-full bg-primary-600 text-white px-8 py-4 rounded-lg hover:bg-primary-700 transition font-semibold text-lg disabled:bg-gray-400 disabled:cursor-not-allowed"
           >
-            {loading ? 'Processing Order...' : 'Place Order'}
+            {loading ? 'Processing Order...' : `Place Order - $${calculateTotal().toFixed(2)}`}
           </button>
 
           <p className="text-sm text-gray-600 mt-4 text-center">
