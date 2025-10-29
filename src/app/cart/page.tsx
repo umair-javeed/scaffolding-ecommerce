@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { products as productData } from '@/lib/products';
 
 interface CartItem {
   id: number;
@@ -41,7 +42,19 @@ export default function CartPage() {
 
   const updateUnit = (index: number, newUnit: 'kg' | 'lb') => {
     const newCart = [...cartItems];
-    newCart[index].unit = newUnit;
+    const item = newCart[index];
+    
+    // Find the product to get correct prices
+    const product = productData.find(p => p.id === item.id);
+    
+    if (product) {
+      // Update unit
+      item.unit = newUnit;
+      
+      // Update price based on new unit
+      item.pricePerUnit = newUnit === 'kg' ? product.pricePerKg : product.pricePerLb;
+    }
+    
     setCartItems(newCart);
     localStorage.setItem('cart', JSON.stringify(newCart));
   };
