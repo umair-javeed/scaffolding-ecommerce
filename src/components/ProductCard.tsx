@@ -13,18 +13,22 @@ export default function ProductCard({ product }: ProductCardProps) {
   const [unit, setUnit] = useState<'kg' | 'lb'>('kg');
   const [added, setAdded] = useState(false);
 
+  // Calculate current price based on selected unit
+  const currentPrice = unit === 'kg' ? product.pricePerKg : product.pricePerLb;
+  const totalPrice = weight * currentPrice;
+
   const handleAddToCart = () => {
     // Get existing cart from localStorage
     const existingCart = localStorage.getItem('cart');
     const cart = existingCart ? JSON.parse(existingCart) : [];
     
-    // Add new item
+    // Add new item with correct price for selected unit
     const cartItem = {
       id: product.id,
       name: product.name,
       weight,
       unit,
-      pricePerUnit: unit === 'kg' ? product.pricePerKg : product.pricePerLb,
+      pricePerUnit: currentPrice, // Use calculated current price
       image: product.image
     };
     
@@ -87,6 +91,22 @@ export default function ProductCard({ product }: ProductCardProps) {
             <option value="kg">KG</option>
             <option value="lb">LB</option>
           </select>
+        </div>
+
+        {/* Price Display - Updates with unit change */}
+        <div className="mb-3 bg-gray-50 p-3 rounded">
+          <div className="flex justify-between items-center">
+            <span className="text-sm text-gray-600">Current Price:</span>
+            <span className="text-lg font-bold text-primary-600">
+              ${currentPrice.toFixed(2)}/{unit}
+            </span>
+          </div>
+          <div className="flex justify-between items-center mt-1">
+            <span className="text-sm text-gray-600">Total:</span>
+            <span className="text-xl font-bold text-primary-700">
+              ${totalPrice.toFixed(2)}
+            </span>
+          </div>
         </div>
 
         {/* Add to Cart Button */}
