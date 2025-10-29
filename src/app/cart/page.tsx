@@ -32,9 +32,11 @@ export default function CartPage() {
     localStorage.setItem('cart', JSON.stringify(newCart));
   };
 
-  const updateWeight = (index: number, newWeight: number) => {
+  const updateWeight = (index: number, value: string) => {
+    // Allow empty string while typing
     const newCart = [...cartItems];
-    newCart[index].weight = newWeight;
+    const numValue = value === '' ? 1 : parseInt(value);
+    newCart[index].weight = numValue;
     setCartItems(newCart);
     localStorage.setItem('cart', JSON.stringify(newCart));
   };
@@ -121,9 +123,16 @@ export default function CartPage() {
                         <input
                           type="number"
                           min="1"
+                          step="1"
                           value={item.weight}
-                          onChange={(e) => updateWeight(index, parseInt(e.target.value) || 1)}
-                          className="w-20 px-2 py-1 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
+                          onChange={(e) => updateWeight(index, e.target.value)}
+                          onBlur={(e) => {
+                            // Ensure minimum value of 1 when user leaves the field
+                            if (!e.target.value || parseInt(e.target.value) < 1) {
+                              updateWeight(index, '1');
+                            }
+                          }}
+                          className="w-24 px-3 py-2 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
                         />
                       </div>
 
@@ -132,7 +141,7 @@ export default function CartPage() {
                         <select
                           value={item.unit}
                           onChange={(e) => updateUnit(index, e.target.value as 'kg' | 'lb')}
-                          className="px-2 py-1 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
+                          className="px-3 py-2 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
                         >
                           <option value="kg">KG</option>
                           <option value="lb">LB</option>
