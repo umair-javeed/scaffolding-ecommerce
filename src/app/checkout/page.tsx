@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { createOrder } from '@/lib/api';
 
 interface CartItem {
@@ -104,17 +105,17 @@ export default function CheckoutPage() {
               You will receive a confirmation email shortly.
             </p>
             <div className="space-y-3">
-              <button
-                onClick={() => router.push('/')}
+              <Link
+                href="/orders"
                 className="block w-full bg-primary-600 text-white px-6 py-3 rounded-lg hover:bg-primary-700 transition font-semibold"
               >
-                Continue Shopping
-              </button>
+                View Your Orders
+              </Link>
               <button
-                onClick={() => router.push('/cart')}
+                onClick={() => router.push('/')}
                 className="block w-full bg-gray-200 text-gray-800 px-6 py-3 rounded-lg hover:bg-gray-300 transition font-semibold"
               >
-                View Cart
+                Continue Shopping
               </button>
             </div>
           </div>
