@@ -65,22 +65,46 @@ export default function Navbar() {
         {/* Mobile Menu */}
         {isOpen && (
           <div className="md:hidden pb-4">
-            <Link href="/" className="block py-2 hover:text-primary-300 transition">
+            <Link 
+              href="/" 
+              className="block py-2 hover:text-primary-300 transition"
+              onClick={() => setIsOpen(false)}
+            >
               Home
             </Link>
-            <Link href="/#products" className="block py-2 hover:text-primary-300 transition">
+            <Link 
+              href="/#products" 
+              className="block py-2 hover:text-primary-300 transition"
+              onClick={() => setIsOpen(false)}
+            >
               Products
             </Link>
-            <Link href="/orders" className="block py-2 hover:text-primary-300 transition">
+            <Link 
+              href="/orders" 
+              className="block py-2 hover:text-primary-300 transition"
+              onClick={() => setIsOpen(false)}
+            >
               Your Orders
             </Link>
-            <Link href="/cart" className="block py-2 hover:text-primary-300 transition">
+            <Link 
+              href="/cart" 
+              className="block py-2 hover:text-primary-300 transition"
+              onClick={() => setIsOpen(false)}
+            >
               Cart
             </Link>
-            <Link href="/login" className="block py-2 hover:text-primary-300 transition">
+            <Link 
+              href="/login" 
+              className="block py-2 hover:text-primary-300 transition"
+              onClick={() => setIsOpen(false)}
+            >
               Login
             </Link>
-            <Link href="/signup" className="block py-2 hover:text-primary-300 transition">
+            <Link 
+              href="/signup" 
+              className="block py-2 hover:text-primary-300 transition"
+              onClick={() => setIsOpen(false)}
+            >
               Sign Up
             </Link>
           </div>
