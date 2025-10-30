@@ -16,6 +16,9 @@ export default function Header() {
             <Link href="/#products" className="text-gray-700 hover:text-primary-600 transition">
               Products
             </Link>
+            <Link href="/orders" className="text-gray-700 hover:text-primary-600 transition">
+              Your Orders
+            </Link>
             <Link href="/cart" className="text-gray-700 hover:text-primary-600 transition">
               Cart
             </Link>
@@ -31,8 +34,8 @@ export default function Header() {
             <Link 
               href="/signup" 
               className="btn-3d text-white px-6 py-2.5 rounded-lg font-bold inline-block"
-              >
-                Sign Up
+            >
+              Sign Up
             </Link>
           </div>
         </div>
