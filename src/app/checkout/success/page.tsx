@@ -1,11 +1,11 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { createOrder } from '@/lib/api';
 
-export default function PaymentSuccessPage() {
+function SuccessContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [orderId, setOrderId] = useState('');
@@ -25,7 +25,6 @@ export default function PaymentSuccessPage() {
 
   const createOrderAfterPayment = async (sessionId: string) => {
     try {
-      // Get cart and checkout data
       const savedCart = localStorage.getItem('cart');
       const savedCheckout = localStorage.getItem('checkoutData');
 
@@ -40,7 +39,6 @@ export default function PaymentSuccessPage() {
         return sum + (item.weight * item.pricePerUnit);
       }, 0);
 
-      // Create order with payment info
       const order = {
         customerEmail: checkoutData.email,
         items: cartItems.map((item: any) => ({
@@ -64,7 +62,6 @@ export default function PaymentSuccessPage() {
 
       if (response.success) {
         setOrderId(response.orderId);
-        // Clear cart and checkout data
         localStorage.removeItem('cart');
         localStorage.removeItem('checkoutData');
       } else {
@@ -148,5 +145,20 @@ export default function PaymentSuccessPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function PaymentSuccessPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="text-4xl mb-4">⏳</div>
+          <h2 className="text-2xl font-bold">Loading...</h2>
+        </div>
+      </div>
+    }>
+      <SuccessContent />
+    </Suspense>
   );
 }
