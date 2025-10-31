@@ -50,18 +50,9 @@ export default function CheckoutPage() {
     try {
       const formData = new FormData(e.currentTarget);
       
-      const totalAmount = calculateTotal();
-      
-      const order = {
-        customerEmail: formData.get('email') as string,
-        items: cartItems.map(item => ({
-          id: item.id,
-          name: item.name,
-          weight: item.weight,
-          unit: item.unit,
-          pricePerUnit: item.pricePerUnit
-        })),
-        totalAmount: parseFloat(totalAmount.toFixed(2)),
+      // Save checkout data to localStorage for payment page
+      const checkoutData = {
+        email: formData.get('email') as string,
         shippingAddress: {
           street: formData.get('address') as string,
           city: formData.get('city') as string,
@@ -71,21 +62,13 @@ export default function CheckoutPage() {
         }
       };
 
-      console.log('Submitting order:', order);
+      localStorage.setItem('checkoutData', JSON.stringify(checkoutData));
 
-      const response = await createOrder(order);
-      
-      if (response.success) {
-        setOrderId(response.orderId);
-        setOrderPlaced(true);
-        // Clear cart after successful order
-        localStorage.removeItem('cart');
-      } else {
-        setError('Failed to place order. Please try again.');
-      }
+      // Redirect to payment page
+      router.push('/checkout/payment');
     } catch (err) {
-      console.error('Order error:', err);
-      setError('Error placing order. Please try again.');
+      console.error('Checkout error:', err);
+      setError('Error proceeding to payment. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -247,11 +230,11 @@ export default function CheckoutPage() {
             disabled={loading || cartItems.length === 0}
             className="w-full bg-primary-600 text-white px-8 py-4 rounded-lg hover:bg-primary-700 transition font-semibold text-lg disabled:bg-gray-400 disabled:cursor-not-allowed"
           >
-            {loading ? 'Processing Order...' : `Place Order - $${calculateTotal().toFixed(2)}`}
+            {loading ? 'Processing...' : `Proceed to Payment - $${calculateTotal().toFixed(2)}`}
           </button>
 
           <p className="text-sm text-gray-600 mt-4 text-center">
-            By placing this order, you agree to our terms and conditions.
+            By continuing, you agree to our terms and conditions.
           </p>
         </form>
       </div>
