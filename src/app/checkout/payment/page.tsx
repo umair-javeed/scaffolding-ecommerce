@@ -2,11 +2,6 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { loadStripe } from '@stripe/stripe-js';
-import { createOrder } from '@/lib/api';
-
-// Load Stripe
-const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!);
 
 interface CartItem {
   id: number;
@@ -36,7 +31,6 @@ export default function PaymentPage() {
   const [checkoutData, setCheckoutData] = useState<CheckoutData | null>(null);
 
   useEffect(() => {
-    // Load cart and checkout data
     const savedCart = localStorage.getItem('cart');
     const savedCheckout = localStorage.getItem('checkoutData');
     
@@ -60,22 +54,15 @@ export default function PaymentPage() {
     setError('');
 
     try {
-      const stripe = await stripePromise;
-      
-      if (!stripe) {
-        throw new Error('Stripe failed to load');
-      }
-
       const totalAmount = calculateTotal();
 
-      // Create payment session
       const response = await fetch('/api/create-payment-intent', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          amount: Math.round(totalAmount * 100), // Convert to cents
+          amount: Math.round(totalAmount * 100),
           currency: 'usd',
           items: cartItems,
           customerEmail: checkoutData?.email,
@@ -89,7 +76,17 @@ export default function PaymentPage() {
         throw new Error(data.error || 'Payment failed');
       }
 
-      // Redirect to Stripe Checkout
+      // Load Stripe and redirect
+      const stripePromise = (await import('@stripe/stripe-js')).loadStripe(
+        process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!
+      );
+      
+      const stripe = await stripePromise;
+
+      if (!stripe) {
+        throw new Error('Stripe failed to load');
+      }
+
       const result = await stripe.redirectToCheckout({
         sessionId: data.sessionId,
       });
@@ -106,7 +103,11 @@ export default function PaymentPage() {
   };
 
   if (!checkoutData) {
-    return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-xl">Loading...</div>
+      </div>
+    );
   }
 
   return (
@@ -120,7 +121,6 @@ export default function PaymentPage() {
           </div>
         )}
 
-        {/* Order Summary */}
         <div className="bg-white rounded-lg shadow-md p-6 mb-6">
           <h2 className="text-xl font-semibold mb-4">Order Summary</h2>
           
@@ -144,7 +144,6 @@ export default function PaymentPage() {
           </div>
         </div>
 
-        {/* Shipping Info */}
         <div className="bg-white rounded-lg shadow-md p-6 mb-6">
           <h2 className="text-xl font-semibold mb-4">Shipping Information</h2>
           <p className="text-gray-700">{checkoutData.email}</p>
@@ -155,7 +154,6 @@ export default function PaymentPage() {
           </p>
         </div>
 
-        {/* Payment Info */}
         <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 mb-6">
           <div className="flex items-start">
             <div className="text-blue-600 mr-4 text-2xl">🔒</div>
@@ -168,7 +166,6 @@ export default function PaymentPage() {
           </div>
         </div>
 
-        {/* Payment Button */}
         <button
           onClick={handlePayment}
           disabled={loading}
