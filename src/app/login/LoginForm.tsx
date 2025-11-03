@@ -4,18 +4,15 @@ import { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/contexts/AuthContext';
-
 export default function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { signIn, isAuthenticated } = useAuth();
-  
+  const { signIn, isAuthenticated } = useAuth();  
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [successMessage, setSuccessMessage] = useState('');
-
   useEffect(() => {
     if (searchParams.get('verified') === 'true') {
       setSuccessMessage('Email verified! Please sign in.');
@@ -108,14 +105,3 @@ export default function LoginForm() {
     </div>
   );
 }
-```
-
-**Only change:** `LoginPage()` → `LoginForm()` on line 8
-
----
-
-## 📁 **You Should Now Have:**
-```
-src/app/login/
-├── page.tsx        ← 13 lines (wrapper with Suspense)
-└── LoginForm.tsx   ← ~120 lines (your form logic)
