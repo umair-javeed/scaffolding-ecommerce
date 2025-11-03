@@ -1,139 +1,199 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { useAuth } from '@/contexts/AuthContext';
 
-export default function SignupPage() {
+export default function SignUpPage() {
+  const router = useRouter();
+  const { signUp, confirmSignUp } = useAuth();
+  
+  const [step, setStep] = useState<'signup' | 'confirm'>('signup');
   const [formData, setFormData] = useState({
     name: '',
     email: '',
     password: '',
-    confirmPassword: ''
+    confirmPassword: '',
   });
+  const [verificationCode, setVerificationCode] = useState('');
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value
-    });
-  };
-
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Handle signup logic here
-    console.log('Signup attempt:', formData);
+    setError('');
+    setLoading(true);
+
+    if (formData.password !== formData.confirmPassword) {
+      setError('Passwords do not match');
+      setLoading(false);
+      return;
+    }
+
+    if (formData.password.length < 8) {
+      setError('Password must be at least 8 characters');
+      setLoading(false);
+      return;
+    }
+
+    try {
+      await signUp(formData.email, formData.password, formData.name);
+      setStep('confirm');
+    } catch (err: any) {
+      setError(err.message || 'Error creating account');
+    } finally {
+      setLoading(false);
+    }
   };
 
-  return (
-    <div className="min-h-[80vh] flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8">
-        <div>
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-            Create your account
-          </h2>
-          <p className="mt-2 text-center text-sm text-gray-600">
-            Already have an account?{' '}
-            <Link href="/login" className="font-medium text-primary-600 hover:text-primary-500">
-              Sign in
-            </Link>
+  const handleConfirmSignUp = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError('');
+    setLoading(true);
+
+    try {
+      await confirmSignUp(formData.email, verificationCode);
+      router.push('/login?verified=true');
+    } catch (err: any) {
+      setError(err.message || 'Error verifying account');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (step === 'confirm') {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center py-12 px-4">
+        <div className="max-w-md w-full bg-white rounded-lg shadow-md p-8">
+          <h2 className="text-3xl font-bold text-center mb-6">Verify Your Email</h2>
+          
+          <p className="text-gray-600 text-center mb-6">
+            We've sent a verification code to <strong>{formData.email}</strong>
           </p>
-        </div>
-        
-        <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
-          <div className="rounded-md shadow-sm space-y-4">
-            <div>
-              <label htmlFor="name" className="sr-only">
-                Full Name
+
+          {error && (
+            <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded mb-4">
+              {error}
+            </div>
+          )}
+
+          <form onSubmit={handleConfirmSignUp}>
+            <div className="mb-6">
+              <label className="block text-gray-700 font-semibold mb-2">
+                Verification Code
               </label>
               <input
-                id="name"
-                name="name"
                 type="text"
+                value={verificationCode}
+                onChange={(e) => setVerificationCode(e.target.value)}
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                placeholder="Enter 6-digit code"
                 required
-                value={formData.name}
-                onChange={handleChange}
-                className="appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500 focus:z-10 sm:text-sm"
-                placeholder="Full Name"
+                maxLength={6}
               />
             </div>
-            
-            <div>
-              <label htmlFor="email" className="sr-only">
-                Email address
-              </label>
-              <input
-                id="email"
-                name="email"
-                type="email"
-                autoComplete="email"
-                required
-                value={formData.email}
-                onChange={handleChange}
-                className="appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500 focus:z-10 sm:text-sm"
-                placeholder="Email address"
-              />
-            </div>
-            
-            <div>
-              <label htmlFor="password" className="sr-only">
-                Password
-              </label>
-              <input
-                id="password"
-                name="password"
-                type="password"
-                autoComplete="new-password"
-                required
-                value={formData.password}
-                onChange={handleChange}
-                className="appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500 focus:z-10 sm:text-sm"
-                placeholder="Password"
-              />
-            </div>
-            
-            <div>
-              <label htmlFor="confirmPassword" className="sr-only">
-                Confirm Password
-              </label>
-              <input
-                id="confirmPassword"
-                name="confirmPassword"
-                type="password"
-                autoComplete="new-password"
-                required
-                value={formData.confirmPassword}
-                onChange={handleChange}
-                className="appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500 focus:z-10 sm:text-sm"
-                placeholder="Confirm Password"
-              />
-            </div>
-          </div>
 
-          <div className="flex items-center">
-            <input
-              id="terms"
-              name="terms"
-              type="checkbox"
-              required
-              className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
-            />
-            <label htmlFor="terms" className="ml-2 block text-sm text-gray-900">
-              I agree to the{' '}
-              <a href="#" className="text-primary-600 hover:text-primary-500">
-                Terms and Conditions
-              </a>
-            </label>
-          </div>
-
-          <div>
             <button
               type="submit"
-              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
+              disabled={loading}
+              className="w-full bg-primary-600 text-white py-3 rounded-lg hover:bg-primary-700 transition font-semibold disabled:bg-gray-400"
             >
-              Create Account
+              {loading ? 'Verifying...' : 'Verify Email'}
             </button>
+          </form>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-gray-50 flex items-center justify-center py-12 px-4">
+      <div className="max-w-md w-full bg-white rounded-lg shadow-md p-8">
+        <h2 className="text-3xl font-bold text-center mb-6">Create Account</h2>
+
+        {error && (
+          <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded mb-4">
+            {error}
           </div>
+        )}
+
+        <form onSubmit={handleSignUp}>
+          <div className="mb-4">
+            <label className="block text-gray-700 font-semibold mb-2">
+              Full Name
+            </label>
+            <input
+              type="text"
+              value={formData.name}
+              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500"
+              placeholder="John Doe"
+              required
+            />
+          </div>
+
+          <div className="mb-4">
+            <label className="block text-gray-700 font-semibold mb-2">
+              Email
+            </label>
+            <input
+              type="email"
+              value={formData.email}
+              onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500"
+              placeholder="your@email.com"
+              required
+            />
+          </div>
+
+          <div className="mb-4">
+            <label className="block text-gray-700 font-semibold mb-2">
+              Password
+            </label>
+            <input
+              type="password"
+              value={formData.password}
+              onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500"
+              placeholder="••••••••"
+              required
+              minLength={8}
+            />
+            <p className="text-xs text-gray-500 mt-1">
+              Min 8 characters with uppercase, lowercase, number & special character
+            </p>
+          </div>
+
+          <div className="mb-6">
+            <label className="block text-gray-700 font-semibold mb-2">
+              Confirm Password
+            </label>
+            <input
+              type="password"
+              value={formData.confirmPassword}
+              onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500"
+              placeholder="••••••••"
+              required
+            />
+          </div>
+
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full bg-primary-600 text-white py-3 rounded-lg hover:bg-primary-700 transition font-semibold disabled:bg-gray-400"
+          >
+            {loading ? 'Creating Account...' : 'Sign Up'}
+          </button>
         </form>
+
+        <p className="text-center text-gray-600 mt-6">
+          Already have an account?{' '}
+          <Link href="/login" className="text-primary-600 hover:underline font-semibold">
+            Sign In
+          </Link>
+        </p>
       </div>
     </div>
   );
