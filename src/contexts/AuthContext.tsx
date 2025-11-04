@@ -11,6 +11,7 @@ if (typeof window !== 'undefined') {
       Cognito: {
         userPoolId: 'us-east-1_tv8uaa8YJ',
         userPoolClientId: '64b8d4lmcsicnadks6u9m8jke',
+        region: 'us-east-1',
         loginWith: {
           email: true,
         },
