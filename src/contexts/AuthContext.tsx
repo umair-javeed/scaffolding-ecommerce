@@ -10,7 +10,7 @@ if (typeof window !== 'undefined') {
     Auth: {
       Cognito: {
       userPoolId: process.env.NEXT_PUBLIC_COGNITO_USER_POOL_ID || 'us-east-1_tv8uaa8YJ',
-      userPoolClientId: process.env.NEXT_PUBLIC_COGNITO_CLIENT_ID || '64b8sr4lmc5icnadks6u9m8jke',
+      userPoolClientId: process.env.NEXT_PUBLIC_COGNITO_CLIENT_ID || '6988flgqnk5nemll247jsm6i7m',
         loginWith: {
           email: true,
         },
