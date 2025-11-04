@@ -9,8 +9,8 @@ if (typeof window !== 'undefined') {
   Amplify.configure({
     Auth: {
       Cognito: {
-        userPoolId: 'us-east-1_tv8uaa8YJ',
-        userPoolClientId: '64b8d4lmcsicnadks6u9m8jke',
+      userPoolId: process.env.NEXT_PUBLIC_COGNITO_USER_POOL_ID || 'us-east-1_tv8uaa8YJ',
+      userPoolClientId: process.env.NEXT_PUBLIC_COGNITO_CLIENT_ID || '64b8d4lmcsicnadks6u9m8jke',
         loginWith: {
           email: true,
         },
