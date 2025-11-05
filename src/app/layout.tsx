@@ -35,7 +35,7 @@ export default function RootLayout({
             
             {/* ⬇️ ADD THIS - WhatsApp Floating Button */}
             <WhatsAppFloatingButton 
-              phoneNumber="17039393670"  // ⚠️ REPLACE with your WhatsApp Business number
+              phoneNumber="923234854418"  // ⚠️ REPLACE with your WhatsApp Business number
               message="Hi! I'm interested in your scaffolding products. Can you help me?"
               position="bottom-right"
             />
