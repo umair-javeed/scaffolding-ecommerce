@@ -4,7 +4,7 @@ const amplifyConfig = {
   Auth: {
     Cognito: {
       userPoolId: 'us-east-1_tv8uaa8YJ',
-      userPoolClientId: '64b8d4lmcsicnadks6u9m8jke',
+      userPoolClientId: '6988flgqnk5nemll247jsm6i7m',
       loginWith: {
         email: true,
       },
