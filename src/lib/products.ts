@@ -60,14 +60,14 @@ export const products: Product[] = [
     category: "Bulk",
     stock: 100000
   },
-  // ⬇️ NEW PRODUCTS - ADD THESE
+  // ⬇️ NEW images - ADD THESE
   {
     id: 6,
     name: "Mobile Step Ladder Scaffolding Tower",
     description: "Professional-grade mobile scaffolding tower with wheels and multiple working platforms - yellow powder-coated steel construction",
     pricePerKg: 2.00,
     pricePerLb: 0.91,
-    image: "/products/step_ladder.jpg",
+    image: "/images/step_ladder.jpg",
     category: "Systems",
     stock: 15
   },
@@ -77,7 +77,7 @@ export const products: Product[] = [
     description: "High-quality galvanized metal shuttering planks with pre-drilled holes - durable and reusable for concrete formwork",
     pricePerKg: 1.32,
     pricePerLb: 0.60,
-    image: "/products/shuttering_plants.jpg",
+    image: "/images/shuttering_plants.jpg",
     category: "Formwork",
     stock: 500
   },
@@ -87,7 +87,7 @@ export const products: Product[] = [
     description: "Brand new 20 feet mild steel scaffolding pipes - high-quality construction-grade with uniform thickness",
     pricePerKg: 2.80,
     pricePerLb: 1.27,
-    image: "/products/new_20_ft_ms_pipe.jpg",
+    image: "/images/new_20_ft_ms_pipe.jpg",
     category: "Pipes",
     stock: 1000
   },
@@ -97,7 +97,7 @@ export const products: Product[] = [
     description: "Heavy-duty metal shuttering plates for concrete formwork - standard 2x3 feet size with reinforced edges",
     pricePerKg: 2.50,
     pricePerLb: 1.13,
-    image: "/products/plate_2ftby3ft.jpg",
+    image: "/images/plate_2ftby3ft.jpg",
     category: "Formwork",
     stock: 800
   },
@@ -107,7 +107,7 @@ export const products: Product[] = [
     description: "Heavy-duty adjustable pipe jack with base plate - threaded rod design for easy height adjustment and leveling",
     pricePerKg: 3.20,
     pricePerLb: 1.45,
-    image: "/products/pipe_jack.jpg",
+    image: "/images/pipe_jack.jpg",
     category: "Accessories",
     stock: 500
   },
@@ -117,11 +117,11 @@ export const products: Product[] = [
     description: "Quality used 20 feet shuttering pipes in good working condition - cost-effective solution inspected for quality",
     pricePerKg: 2.00,
     pricePerLb: 0.91,
-    image: "/products/use_20_ft_shuttering_pipe.jpg",
+    image: "/images/use_20_ft_shuttering_pipe.jpg",
     category: "Pipes",
     stock: 2000
   },
-  // ⬆️ END OF NEW PRODUCTS
+  // ⬆️ END OF NEW images
 ];
 
 export const getProductById = (id: number): Product | undefined => {
