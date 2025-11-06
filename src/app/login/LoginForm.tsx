@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/contexts/AuthContext';
+
 export default function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -13,6 +14,7 @@ export default function LoginForm() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [successMessage, setSuccessMessage] = useState('');
+
   useEffect(() => {
     if (searchParams.get('verified') === 'true') {
       setSuccessMessage('Email verified! Please sign in.');
@@ -95,12 +97,24 @@ export default function LoginForm() {
           </button>
         </form>
 
+        {/* ⬇️ FORGOT PASSWORD LINK - ADD THIS */}
+        <div className="mt-4 text-center">
+          <Link 
+            href="/forgot-password" 
+            className="text-sm text-primary-600 hover:text-primary-700 hover:underline"
+          >
+            Forgot your password?
+          </Link>
+        </div>
+        {/* ⬆️ END OF ADDITION */}
+
         <p className="text-center text-gray-600 mt-6">
           Don't have an account?{' '}
           <Link href="/signup" className="text-primary-600 hover:underline font-semibold">
             Sign Up
           </Link>
         </p>
+        
       </div>
     </div>
   );
