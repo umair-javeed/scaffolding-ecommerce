@@ -194,20 +194,3 @@ export default function PaymentSuccessPage() {
     </Suspense>
   );
 }
-```
-
-## Verify Your File Structure
-
-Make sure you have created the get-session API route correctly:
-```
-src/
-  app/
-    api/
-      create-payment-intent/
-        route.ts
-      stripe/
-        get-session/
-          route.ts  ← Make sure this exists!
-    checkout/
-      success/
-        page.tsx  ← Replace with code above
