@@ -46,7 +46,9 @@ export default function ProductsPage() {
   };
 
   const addToCart = (product: Product, weight: number, unit: 'kg' | 'lb') => {
-    const pricePerUnit = unit === 'kg' ? product.pricePerKg : product.pricePerLb;
+    const pricePerKg = product.pricePerKg || 0;
+    const pricePerLb = product.pricePerLb || 0;
+    const pricePerUnit = unit === 'kg' ? pricePerKg : pricePerLb;
     
     const cartItem = {
       id: product.productId,
@@ -118,69 +120,78 @@ export default function ProductsPage() {
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {products.map((product) => (
-              <div key={product.productId} className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition">
-                <div className="relative h-64">
-                  <Image
-                    src={product.image}
-                    alt={product.name}
-                    fill
-                    className="object-cover"
-                  />
-                </div>
-                
-                <div className="p-6">
-                  <div className="mb-2">
-                    <span className="inline-block bg-primary-100 text-primary-800 text-xs px-2 py-1 rounded">
-                      {product.category}
-                    </span>
+            {products.map((product) => {
+              const pricePerKg = product.pricePerKg || 0;
+              const pricePerLb = product.pricePerLb || 0;
+              const stockQuantity = product.stockQuantity || 0;
+              const category = product.category || 'General';
+              const description = product.description || 'No description available';
+              
+              return (
+                <div key={product.productId} className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition">
+                  <div className="relative h-64">
+                    <Image
+                      src={product.image}
+                      alt={product.name}
+                      fill
+                      className="object-cover"
+                    />
                   </div>
                   
-                  <h3 className="text-xl font-bold mb-2">{product.name}</h3>
-                  <p className="text-gray-600 text-sm mb-4">{product.description}</p>
-                  
-                  <div className="mb-4">
-                    <p className="text-lg font-bold text-primary-600">
-                      ${product.pricePerKg.toFixed(2)}/kg
-                    </p>
-                    <p className="text-sm text-gray-600">
-                      ${product.pricePerLb.toFixed(2)}/lb
-                    </p>
-                    <p className="text-sm text-gray-500 mt-2">
-                      Stock: {product.stockQuantity} units
-                    </p>
-                  </div>
-
-                  <form onSubmit={(e) => handleAddToCart(product, e)}>
-                    <div className="flex gap-2 mb-4">
-                      <input
-                        type="number"
-                        name="weight"
-                        min="1"
-                        step="0.1"
-                        defaultValue="1"
-                        className="flex-1 px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-primary-500"
-                        required
-                      />
-                      <select
-                        name="unit"
-                        className="px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-primary-500"
-                      >
-                        <option value="kg">kg</option>
-                        <option value="lb">lb</option>
-                      </select>
+                  <div className="p-6">
+                    <div className="mb-2">
+                      <span className="inline-block bg-primary-100 text-primary-800 text-xs px-2 py-1 rounded">
+                        {category}
+                      </span>
                     </div>
                     
-                    <button
-                      type="submit"
-                      className="w-full bg-primary-600 text-white px-4 py-3 rounded-lg hover:bg-primary-700 transition font-semibold"
-                    >
-                      Add to Cart
-                    </button>
-                  </form>
+                    <h3 className="text-xl font-bold mb-2">{product.name}</h3>
+                    <p className="text-gray-600 text-sm mb-4">{description}</p>
+                    
+                    <div className="mb-4">
+                      <p className="text-lg font-bold text-primary-600">
+                        ${pricePerKg.toFixed(2)}/kg
+                      </p>
+                      <p className="text-sm text-gray-600">
+                        ${pricePerLb.toFixed(2)}/lb
+                      </p>
+                      <p className="text-sm text-gray-500 mt-2">
+                        Stock: {stockQuantity} units
+                      </p>
+                    </div>
+
+                    <form onSubmit={(e) => handleAddToCart(product, e)}>
+                      <div className="flex gap-2 mb-4">
+                        <input
+                          type="number"
+                          name="weight"
+                          min="1"
+                          step="0.1"
+                          defaultValue="1"
+                          className="flex-1 px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-primary-500"
+                          required
+                        />
+                        <select
+                          name="unit"
+                          className="px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-primary-500"
+                        >
+                          <option value="kg">kg</option>
+                          <option value="lb">lb</option>
+                        </select>
+                      </div>
+                      
+                      <button
+                        type="submit"
+                        disabled={!pricePerKg && !pricePerLb}
+                        className="w-full bg-primary-600 text-white px-4 py-3 rounded-lg hover:bg-primary-700 transition font-semibold disabled:bg-gray-400 disabled:cursor-not-allowed"
+                      >
+                        Add to Cart
+                      </button>
+                    </form>
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
       </div>
