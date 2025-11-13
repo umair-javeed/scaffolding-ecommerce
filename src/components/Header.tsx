@@ -30,6 +30,9 @@ export default function Header() {
                 Your Orders
               </Link>
             )}
+            <Link href="/purchase" className="text-gray-700 hover:text-primary-600 transition">
+              Purchase
+            </Link>
             <Link href="/cart" className="text-gray-700 hover:text-primary-600 transition relative">
               Cart
               {cartItemsCount > 0 && (
