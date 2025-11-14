@@ -121,6 +121,46 @@ export const products: Product[] = [
     category: "Pipes",
     stock: 2000
   },
+  {
+    id: 12,
+    name: "China_clamp",
+    description: "Heavy-duty scaffolding clamps and couplers - secure connections for safe construction",
+    pricePerKg: 2.00,
+    pricePerLb: 0.91,
+    image: "/images/China_clamp.jpg",
+    category: "clamps&couplers",
+    stock: 5000
+  },
+  {
+    id: 13,
+    name: "Pakistani_Clamp",
+    description: "Heavy-duty scaffolding clamps and couplers - secure connections for safe construction",
+    pricePerKg: 2.00,
+    pricePerLb: 0.91,
+    image: "/images/Pakistani_Clamp.jpg",
+    category: "clamps&couplers",
+    stock: 5000
+  },
+  {
+    id: 14,
+    name: "Pin-china-joint-clamp",
+    description: "Heavy-duty scaffolding clamps and couplers - secure connections for safe construction",
+    pricePerKg: 2.00,
+    pricePerLb: 0.91,
+    image: "/images/Pin-china-joint-clamp.jpg",
+    category: "clamps&couplers",
+    stock: 5000
+  },
+  {
+    id: 15,
+    name: "Universal_china_clamp",
+    description: "Heavy-duty scaffolding clamps and couplers - secure connections for safe construction",
+    pricePerKg: 2.00,
+    pricePerLb: 0.91,
+    image: "/images/Universal_china_clamp.jpg",
+    category: "clamps&couplers",
+    stock: 5000
+  },
   // ⬆️ END OF NEW images
 ];
 
